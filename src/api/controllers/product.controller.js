@@ -71,3 +71,35 @@ export const getProductById = async (req, res) => {
         );
     };
 };
+
+export const updateProduct = async (req, res) => {
+    const { id } = req.params;
+    const updatedData = req.body;
+
+    try {
+        const updatedProduct = await Producto.findOneAndUpdate(
+            { _id: id },
+            updatedData,
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json(
+                { message: 'Product not found, that ID does not exist' }
+            );
+        };
+
+        res.status(200).json({
+            message: 'Product updated successfully',
+            product: updatedProduct
+        });
+
+        res.json(updatedProduct);
+
+    } catch (error) {
+        console.error(`Failed to update product with ID ${id}:`, error);
+        res.status(500).json(
+            { message: 'Error updating product' }
+        );
+    };
+};
