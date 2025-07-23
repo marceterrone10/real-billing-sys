@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const authMiddleware = (req, res, next) => {
-    const authHeader = req.headers.Autorization;
+    const authHeader = req.headers.authorization;
     const token = authHeader?.split(' ')[1];
 
     if (!token) {
@@ -33,7 +33,6 @@ export const roleMiddleware = (req, res, next) => {
             error: 'Forbidden: You do not have permission to access this resource'
         });
     }
-
     next(); 
 };
 

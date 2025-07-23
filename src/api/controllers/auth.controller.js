@@ -29,7 +29,7 @@ export const register = async (req, res) => {
         res.status(201).json({
             message: 'User registered successfully'
         });
-        alert("User registered successfully");
+        //alert("User registered successfully");
 
     } catch (error) {
         console.log("Failed to register user:", error);
@@ -41,7 +41,7 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = await Usuario.find({ email });
+        const user = await Usuario.findOne({ email });
 
         if (!user) {
             return res.status(400).json({
