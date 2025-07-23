@@ -36,8 +36,6 @@ export const getProducts = async (req, res) => {
             products: products
         });
 
-        // Return the products in the response
-        res.json(products);
     } catch (error) {
         console.error("Failed to retrieve products:", error);
         res.status(500).json(
@@ -62,7 +60,6 @@ export const getProductById = async (req, res) => {
             message: "Product retrieved successfully",
             product: product
         });
-        res.json(product);
 
     } catch (error) {
         console.error("Failed to retrieve product by ID:", error);
@@ -94,12 +91,42 @@ export const updateProduct = async (req, res) => {
             product: updatedProduct
         });
 
-        res.json(updatedProduct);
 
     } catch (error) {
         console.error(`Failed to update product with ID ${id}:`, error);
         res.status(500).json(
             { message: 'Error updating product' }
         );
+    };
+};
+
+export const deleteProduct = async (req, res) => {
+    const { id } = req.params;
+    console.log(`Attempting to delete product with ID: ${id}`);
+
+    try {
+        const deletedProduct = await Producto.findByIdAndUpdate(
+            id,
+            { activo: false },
+            { new: true }
+        );
+
+        if (!deletedProduct) {
+            return res.status(404).json(
+                { message: 'Product not found, that ID does not exist' }
+            );
+        };
+
+        res.status(200).json({
+            message: 'Product deleted successfully',
+            product: deletedProduct
+        });
+
+    } catch (error) {
+        console.error(`Failed to delete product with ID ${id}:`, error);
+        res.status(500).json({   
+            message: 'Error deleting product',
+            error: error.message 
+        });
     };
 };
