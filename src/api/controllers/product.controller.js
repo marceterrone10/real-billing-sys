@@ -45,3 +45,29 @@ export const getProducts = async (req, res) => {
         );
     };
 };
+
+export const getProductById = async (req, res) => {
+
+    const { id } = req.params;
+
+    try {
+        const product = await Producto.findById(id);
+        if(!product) {
+            return res.status(404).json({
+                message: 'Product not found, that ID does not exist'
+            });
+        };
+        console.log("Product retrieved successfully:", product);
+        res.status(200).json({
+            message: "Product retrieved successfully",
+            product: product
+        });
+        res.json(product);
+
+    } catch (error) {
+        console.error("Failed to retrieve product by ID:", error);
+        res.status(500).json(
+            { message: 'Error retrieving product by ID' }
+        );
+    };
+};
