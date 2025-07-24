@@ -73,5 +73,34 @@ export const createBill = async (req, res) => {
             error: error.message
         });
     }
-}
+};
+
+export const getBillById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const bill = await Factura.findById(id)
+        .populate('cliente', 'nombre email')
+        .populate('productos.productoId', 'nombre precioUnitario');
+
+        if (!bill) {
+            return res.status(404).json({
+                message: `Bill with ID ${id} not found`
+            });
+        };
+
+        res.status(200).json({
+            message: 'Bill fetched successfully',
+            bill
+        });
+
+         
+    } catch (error) {
+        console.error("Error fetching bill:", error);
+        res.status(500).json({
+            message: 'Error fetching bill',
+            error: error.message
+        });
+    }
+};
 

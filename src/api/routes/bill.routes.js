@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createBill  } from '../controllers/bill.controller.js';
+import { createBill, getBillById } from '../controllers/bill.controller.js';
 import { authMiddleware, roleMiddleware } from '../middlewares/auth.middleware.js';
 
 const router = Router();
@@ -7,5 +7,6 @@ const router = Router();
 // Routes
 
 router.post('/', authMiddleware, roleMiddleware, createBill);
+router.get('/:id', authMiddleware, roleMiddleware, getBillById);
 
 export default router;
