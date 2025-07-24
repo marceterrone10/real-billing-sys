@@ -4,7 +4,7 @@ import Cliente from '../models/cliente.model.js';
 
 export const createBill = async (req, res) => {
     try {
-        const { cliente, productos } = req.body;
+        const { cliente, productos, estado } = req.body;
         
         if (!cliente || !productos || productos.length === 0, !Array.isArray(productos)) {
             return res.status(400).json({
@@ -53,6 +53,7 @@ export const createBill = async (req, res) => {
         }
 
         const newBill = new Factura({
+            estado: estado || 'PENDIENTE',
             fecha: new Date(),
             cliente,
             productos: productsDetails,
@@ -104,3 +105,68 @@ export const getBillById = async (req, res) => {
     }
 };
 
+export const getAllBills = async (req, res) => {
+  try {
+    const { clienteId, desde, hasta, minTotal, maxTotal } = req.query;
+
+    const filters = {};
+
+    if (clienteId) {
+      filters.cliente = clienteId;
+    }
+
+    if (desde || hasta) {
+      filters.fecha = {};
+      if (desde) filters.fecha.$gte = new Date(desde);
+      if (hasta) filters.fecha.$lte = new Date(hasta);
+    }
+
+    if (minTotal || maxTotal) {
+      filters.total = {};
+      if (minTotal) filters.total.$gte = Number(minTotal);
+      if (maxTotal) filters.total.$lte = Number(maxTotal);
+    }
+
+    const bills = await Factura.find(filters)
+      .populate('cliente', 'nombre email')
+      .populate('productos.productoId', 'nombre precioUnitario');
+
+    res.status(200).json(bills);
+
+  } catch (error) {
+    console.error('Error getting bills:', error);
+    res.status(500).json(
+        { message: 'Error fetching bills' }
+    );
+  }
+};
+
+export const updateBillStatus = async (req, res) => {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    try {
+        const bill = await Factura.findById(id);
+
+        if (!bill) {
+            return res.status(404).json({
+                message: `Bill with ID ${id} not found`
+            });
+        }
+
+        bill.estado = estado || bill.estado;
+        await bill.save();
+
+        res.status(200).json({
+            message: 'Bill status updated successfully',
+            bill
+        });
+        
+    } catch (error) {
+        console.error("Error updating bill status:", error);
+        res.status(500).json({
+            message: 'Error updating bill status',
+            error: error.message
+        });
+    }
+};

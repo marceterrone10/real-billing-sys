@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 
 const facturaSchema = new mongoose.Schema({
+    estado: {
+        type: String,
+        enum: ['PENDIENTE', 'PAGADA', 'ANULADA'],
+        default: 'PENDIENTE',
+        required: true
+    },
     fecha: {
         type: Date,
         required: true
