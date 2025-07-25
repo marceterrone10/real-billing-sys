@@ -19,12 +19,12 @@ export const clientSchema = Joi.object({
 
     telefono: Joi.string().pattern(/^\d{10,15}$/).required().messages({
         'string.pattern.base': 'El teléfono debe tener entre 10 y 15 dígitos numéricos',
-        'any.required': 'El teléfono es obligatorio',
+        'any.required': 'El teléfono es obligatorio'
     }),
 
     email: Joi.string().email().required().messages({
         'string.email': 'El email debe ser válido',
-        'any.required': 'El email es obligatorio',
+        'any.required': 'El email es obligatorio'
      }),
 
     activo: Joi.boolean().default(true),    
