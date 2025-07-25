@@ -5,7 +5,7 @@ import authRoutes from './src/api/routes/auth.routes.js';
 import productRoutes from './src/api/routes/product.routes.js';
 import billRoutes from './src/api/routes/bill.routes.js';
 import clientRoutes from './src/api/routes/client.routes.js';
-
+import { loggerMiddleware } from './src/api/middlewares/logger.middleware.js';
 
 // Initialize the Express app
 const app = express();
@@ -16,6 +16,9 @@ connection();
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+// Middleware for logging requests
+app.use(loggerMiddleware);
 
 // Routes for register/login
 app.use('/api/auth', authRoutes);

@@ -8,7 +8,8 @@ const productSchema = new mongoose.Schema({
     },
     descripcion: {
         type: String,
-        trim: true
+        trim: true,
+        default: 'No description provided'
     },
     precioUnitario: {
         type: Number,

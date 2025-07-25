@@ -21,3 +21,14 @@ export const userSchema = Joi.object({
     })
 
 });
+
+export const userLoginSchema = Joi.object({
+    email: Joi.string().email().required().messages({
+        'string.email': 'El email debe ser válido',
+        'any.required': 'El email es obligatorio'
+    }),
+
+    password: Joi.string().required().messages({
+        'string.empty': 'La contraseña es obligatoria.'
+    })
+})

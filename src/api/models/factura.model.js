@@ -9,7 +9,8 @@ const facturaSchema = new mongoose.Schema({
     },
     fecha: {
         type: Date,
-        required: true
+        required: true,
+        default: Date.now()
     },
     cliente: {
         type: mongoose.Schema.Types.ObjectId,
