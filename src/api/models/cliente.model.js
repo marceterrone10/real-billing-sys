@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 const clienteSchema = new mongoose.Schema({
   razonSocial: {
     type: String,
-    required: true
+    required: true,
+    minLength: 3,
+    trim: true
   },
   cuit: {
     type: String,
@@ -18,7 +20,10 @@ const clienteSchema = new mongoose.Schema({
     type: String
   },
   email: {
-    type: String
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true
   },
   activo: {
     type: Boolean,
