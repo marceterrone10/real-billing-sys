@@ -102,7 +102,7 @@ export const getBillById = async (req, res) => {
 
     try {
         const bill = await Factura.findById(id)
-        .populate('cliente', 'nombre email')
+        .populate('cliente', 'razonSocial email')
         .populate('productos.productoId', 'nombre precioUnitario');
 
         if (!bill) {
@@ -149,7 +149,7 @@ export const getAllBills = async (req, res) => {
     }
 
     const bills = await Factura.find(filters)
-      .populate('cliente', 'nombre email')
+      .populate('cliente', 'razonSocial email')
       .populate('productos.productoId', 'nombre precioUnitario');
 
     res.status(200).json(bills);

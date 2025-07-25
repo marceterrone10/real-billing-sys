@@ -11,7 +11,7 @@ export const generatePDF = (bill) => {
     doc.fontSize(20).text(`Bill ID: ${bill.id}`, { align: 'center' });
     doc.moveDown();
 
-    doc.fontSize(16).text(`Customer Name: ${bill.cliente.nombre}`);
+    doc.fontSize(16).text(`Customer Name: ${bill.cliente.razonSocial}`);
     doc.text(`Date: ${new Date(bill.fecha).toLocaleDateString()}`);
     doc.text(`State: ${bill.estado}`);
     doc.moveDown();
