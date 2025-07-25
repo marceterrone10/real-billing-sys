@@ -1,12 +1,13 @@
 import Factura from '../models/factura.model.js';
 import Producto from '../models/producto.model.js';
 import Cliente from '../models/cliente.model.js';
+import { generatePDF } from '../utils/pdfGenerator.utils.js';
 
 export const createBill = async (req, res) => {
     try {
         const { cliente, productos, estado } = req.body;
         
-        if (!cliente || !productos || productos.length === 0, !Array.isArray(productos)) {
+        if (!cliente || !productos || productos.length === 0 || !Array.isArray(productos)) {
             return res.status(400).json({
                 message: "Invalid request data. 'cliente' and 'productos' are required."
             });
@@ -30,6 +31,19 @@ export const createBill = async (req, res) => {
                     message: `Product with ID ${item.productoId} not found`
                 });
             };
+
+            const cantidad = Number(item.cantidad);
+            
+            if( isNaN(cantidad) || cantidad <= 0) {
+                return res.status(400).json({
+                    message: `Invalid quantity for product ${product.nombre}`
+                });
+            }
+
+            console.log("DEBUG:");
+            console.log("product.stock:", product.stock, typeof product.stock);
+            console.log("item.cantidad:", item.cantidad, typeof item.cantidad);
+
 
             if (product.stock < item.cantidad) {
                 return res.status(400).json({
@@ -61,6 +75,13 @@ export const createBill = async (req, res) => {
         });
 
         const savedBill = await newBill.save();
+
+        const savedBillWithDetails = await Factura.findById(savedBill._id)
+            .populate('cliente')
+            .populate('productos.productoId');
+
+        generatePDF(savedBillWithDetails);
+
 
         res.status(201).json({
             message: 'Bill created successfully',
