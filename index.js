@@ -7,7 +7,7 @@ import billRoutes from './src/api/routes/bill.routes.js';
 import clientRoutes from './src/api/routes/client.routes.js';
 import { loggerMiddleware } from './src/api/middlewares/logger.middleware.js';
 import { errorHandler } from './src/api/middlewares/errorHandler.js';
-
+import testRoutes from './src/api/routes/testError.routes.js';
 
 // Initialize the Express app
 const app = express();
@@ -34,10 +34,15 @@ app.use('/api/bills', billRoutes);
 // Route for clients
 app.use('/api/clients', clientRoutes);
 
+// Test route to trigger an error
+app.use('/api', testRoutes);
+
 // Error handling middleware
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3300;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+export default app;
