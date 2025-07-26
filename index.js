@@ -6,6 +6,8 @@ import productRoutes from './src/api/routes/product.routes.js';
 import billRoutes from './src/api/routes/bill.routes.js';
 import clientRoutes from './src/api/routes/client.routes.js';
 import { loggerMiddleware } from './src/api/middlewares/logger.middleware.js';
+import { errorHandler } from './src/api/middlewares/errorHandler.js';
+
 
 // Initialize the Express app
 const app = express();
@@ -32,6 +34,8 @@ app.use('/api/bills', billRoutes);
 // Route for clients
 app.use('/api/clients', clientRoutes);
 
+// Error handling middleware
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3300;
 app.listen(PORT, () => {

@@ -1,6 +1,8 @@
 import Cliente from '../models/cliente.model.js';
+import { ApiError } from '../utils/apiError.js';
 
-export const createClient = async (req, res) => {
+
+export const createClient = async (req, res, next) => {
     const newClient = new Cliente(req.body);
 
     try {
@@ -12,22 +14,17 @@ export const createClient = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Failed to create client:", error);
-        res.status(500).json({
-             message: 'Error creating client' 
-        });
+        next(error);
     };
 };
 
-export const getClients = async (req, res) => {
+export const getClients = async (req, res, next) => {
     try {
         const clients = await Cliente.find();
         console.log("Clients retrieved successfully:", clients);
 
         if (clients.length === 0){
-            return res.status(404).json({ 
-                message: 'No clients found' 
-            });
+            throw new ApiError(404, 'No clients found');
         }
 
         res.status(200).json({
@@ -36,14 +33,11 @@ export const getClients = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Failed to retrieve clients:", error);
-        res.status(500).json({
-            message: 'Error retrieving clients'
-        });
+        next(error);
     };
 };
 
-export const getClientById = async (req, res) => {
+export const getClientById = async (req, res, next) => {
     const { id } = req.params;
 
     try {
@@ -51,9 +45,7 @@ export const getClientById = async (req, res) => {
         console.log(`Client with ID ${id} retrieved successfully:`, client);
 
         if (!client) {
-            return res.status(404).json({
-                message: `Client with ID ${id} not found`
-            });
+            throw new ApiError(404, `Client with ID ${id} not found`);
         };
 
         res.status(200).json({
@@ -62,15 +54,11 @@ export const getClientById = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(`Error retrieving client with ID ${id}:`, error);
-        res.status(500).json({
-            message: `Error retrieving client with ID ${id}`,
-            error: error.message
-        });
+        next(error);
     };
 };
 
-export const updateClient = async (req, res) => {
+export const updateClient = async (req, res, next) => {
     const { id } = req.params;
     const updatedData = req.body;
     
@@ -79,9 +67,7 @@ export const updateClient = async (req, res) => {
         console.log(`Client with ID ${id} updated successfully:`, updatedClient);
 
         if (!updatedClient) {
-            return res.status(404).json({
-                message: `Client with ID ${id} not found`
-            });
+            throw new ApiError(404, `Client with ID ${id} not found`);
         };
 
         res.status(200).json({
@@ -90,11 +76,7 @@ export const updateClient = async (req, res) => {
         }); 
 
     } catch (error) {
-        console.error(`Error updating client with ID ${id}:`, error);
-        res.status(500).json({
-            message: `Error updating client with ID ${id}`,
-            error: error.message
-        });
+        next(error);
     };
 };
 

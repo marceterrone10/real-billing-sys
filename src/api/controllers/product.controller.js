@@ -1,9 +1,11 @@
 import Producto from '../models/producto.model.js';
 import dotenv from 'dotenv';
+import { ApiError } from '../utils/apiError.js';
+
 
 dotenv.config();
 
-export const createProduct = async (req, res) => {
+export const createProduct = async (req, res, next) => {
     
     const newProducto = new Producto(req.body);
 
@@ -16,20 +18,18 @@ export const createProduct = async (req, res) => {
         });
         
     } catch (error) {
-        console.error("Failed to create product:", error);
-        res.status(500).json(
-            { message: 'Error creating product' }
-        );
+        next(error);
     };
 };
 
-export const getProducts = async (req, res) => {
+export const getProducts = async (req, res, next) => {
     try {
         const products = await Producto.find();
         console.log("Products retrieved successfully:", products);
         if (products.length === 0) {
-            return res.status(404).json({ message: 'No products found' });
-        };
+            throw new ApiError(404, 'No products found');
+        }
+
 
         res.status(200).json({
             message: "Products retrieved successfully",
@@ -37,23 +37,18 @@ export const getProducts = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Failed to retrieve products:", error);
-        res.status(500).json(
-            { message: 'Error retrieving products' }
-        );
+        next(error);
     };
 };
 
-export const getProductById = async (req, res) => {
+export const getProductById = async (req, res, next) => {
 
     const { id } = req.params;
 
     try {
         const product = await Producto.findById(id);
         if(!product) {
-            return res.status(404).json({
-                message: 'Product not found, that ID does not exist'
-            });
+            throw new ApiError(404, 'Product not found, that ID does not exist');
         };
         console.log("Product retrieved successfully:", product);
         res.status(200).json({
@@ -62,14 +57,11 @@ export const getProductById = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Failed to retrieve product by ID:", error);
-        res.status(500).json(
-            { message: 'Error retrieving product by ID' }
-        );
+        next(error);
     };
 };
 
-export const updateProduct = async (req, res) => {
+export const updateProduct = async (req, res, next) => {
     const { id } = req.params;
     const updatedData = req.body;
 
@@ -81,26 +73,19 @@ export const updateProduct = async (req, res) => {
         );
 
         if (!updatedProduct) {
-            return res.status(404).json(
-                { message: 'Product not found, that ID does not exist' }
-            );
-        };
+            throw new ApiError(404, 'Product not found, that ID does not exist');
+        }
 
         res.status(200).json({
             message: 'Product updated successfully',
             product: updatedProduct
         });
-
-
     } catch (error) {
-        console.error(`Failed to update product with ID ${id}:`, error);
-        res.status(500).json(
-            { message: 'Error updating product' }
-        );
+        next(error);
     };
 };
 
-export const deleteProduct = async (req, res) => {
+export const deleteProduct = async (req, res, next) => {
     const { id } = req.params;
     console.log(`Attempting to delete product with ID: ${id}`);
 
@@ -112,10 +97,8 @@ export const deleteProduct = async (req, res) => {
         );
 
         if (!deletedProduct) {
-            return res.status(404).json(
-                { message: 'Product not found, that ID does not exist' }
-            );
-        };
+            throw new ApiError(404, 'Product not found, that ID does not exist');
+        }
 
         res.status(200).json({
             message: 'Product deleted successfully',
@@ -123,10 +106,6 @@ export const deleteProduct = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(`Failed to delete product with ID ${id}:`, error);
-        res.status(500).json({   
-            message: 'Error deleting product',
-            error: error.message 
-        });
+        next(error);
     };
 };

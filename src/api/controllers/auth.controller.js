@@ -2,18 +2,17 @@ import Usuario from '../models/usuario.model.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { ApiError } from '../utils/apiError.js'; 
 
 dotenv.config();
 
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
     const  {nombre, email, password, rol } = req.body; 
 
     try {
         const existingUser = await Usuario.findOne({ email });
         if (existingUser) {
-            return res.status(400).json(
-                { message: 'User already exists' }
-            );
+            throw new ApiError(400, 'User already exists');
         };
 
         // First, hash the password
@@ -32,28 +31,23 @@ export const register = async (req, res) => {
         //alert("User registered successfully");
 
     } catch (error) {
-        console.log("Failed to register user:", error);
-        res.status(500).json({ message: 'Error registering user' });
+        next(error);
     }
 };
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     try {
         const user = await Usuario.findOne({ email });
 
         if (!user) {
-            return res.status(400).json({
-                message: 'User not found'
-            });
+            throw new ApiError(400, 'User not found');
         };
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({
-                message: 'Invalid credentials'
-            });
+            throw new ApiError(400, 'Invalid credentials');
         };
 
         // Now, generate a JWT token
@@ -72,7 +66,6 @@ export const login = async (req, res) => {
         console.log("User logged in successfully");
 
     } catch (error) {
-        console.log("Failed to login user:", error);
-        res.status(500).json({ message: 'Error logging in user' });
-    }
+        next(error);
+    };
 };

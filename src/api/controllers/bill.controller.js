@@ -2,22 +2,20 @@ import Factura from '../models/factura.model.js';
 import Producto from '../models/producto.model.js';
 import Cliente from '../models/cliente.model.js';
 import { generatePDF } from '../utils/pdfGenerator.utils.js';
+import { ApiError } from '../utils/apiError.js'
 
-export const createBill = async (req, res) => {
+
+export const createBill = async (req, res, next) => {
     try {
         const { cliente, productos, estado } = req.body;
         
         if (!cliente || !productos || productos.length === 0 || !Array.isArray(productos)) {
-            return res.status(400).json({
-                message: "Invalid request data. 'cliente' and 'productos' are required."
-            });
+            throw new ApiError(400, "Invalid request data. 'cliente' and 'productos' are required.");
         };
         
         const clientExist = await Cliente.findById(cliente);
         if (!clientExist) {
-            return res.status(404).json({
-                message: `Client with ID ${cliente} not found`
-            });
+            throw new ApiError(404, `Client with ID ${cliente} not found`);
         };
         
         let total = 0;
@@ -27,17 +25,13 @@ export const createBill = async (req, res) => {
             const product = await Producto.findById(item.productoId);
 
             if (!product) {
-                return res.status(404).json({
-                    message: `Product with ID ${item.productoId} not found`
-                });
+                throw new ApiError(404, `Product with ID ${item.productoId} not found`);
             };
 
             const cantidad = Number(item.cantidad);
             
             if( isNaN(cantidad) || cantidad <= 0) {
-                return res.status(400).json({
-                    message: `Invalid quantity for product ${product.nombre}`
-                });
+                throw new ApiError(400, `Invalid quantity for product ${product.nombre}`);
             }
 
             console.log("DEBUG:");
@@ -46,10 +40,8 @@ export const createBill = async (req, res) => {
 
 
             if (product.stock < item.cantidad) {
-                return res.status(400).json({
-                    message: `Insufficient stock for product ${product.nombre}`
-                });
-            };
+                throw new ApiError(400, `Insufficient stock for product ${product.nombre}`);
+            }
 
             product.stock -= item.cantidad;
             await product.save();
@@ -89,15 +81,11 @@ export const createBill = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error creating bill:", error);
-        res.status(500).json({ 
-            message: 'Error creating bill',
-            error: error.message
-        });
+        next(error);
     }
 };
 
-export const getBillById = async (req, res) => {
+export const getBillById = async (req, res, next) => {
     const { id } = req.params;
 
     try {
@@ -106,9 +94,7 @@ export const getBillById = async (req, res) => {
         .populate('productos.productoId', 'nombre precioUnitario');
 
         if (!bill) {
-            return res.status(404).json({
-                message: `Bill with ID ${id} not found`
-            });
+            throw new ApiError(404, `Bill with ID ${id} not found`);
         };
 
         res.status(200).json({
@@ -118,15 +104,11 @@ export const getBillById = async (req, res) => {
 
          
     } catch (error) {
-        console.error("Error fetching bill:", error);
-        res.status(500).json({
-            message: 'Error fetching bill',
-            error: error.message
-        });
+        next(error);
     }
 };
 
-export const getAllBills = async (req, res) => {
+export const getAllBills = async (req, res, next) => {
   try {
     const { clienteId, desde, hasta, minTotal, maxTotal } = req.query;
 
@@ -155,14 +137,11 @@ export const getAllBills = async (req, res) => {
     res.status(200).json(bills);
 
   } catch (error) {
-    console.error('Error getting bills:', error);
-    res.status(500).json(
-        { message: 'Error fetching bills' }
-    );
+    next(error);
   }
 };
 
-export const updateBillStatus = async (req, res) => {
+export const updateBillStatus = async (req, res, next) => {
     const { id } = req.params;
     const { estado } = req.body;
 
@@ -170,9 +149,7 @@ export const updateBillStatus = async (req, res) => {
         const bill = await Factura.findById(id);
 
         if (!bill) {
-            return res.status(404).json({
-                message: `Bill with ID ${id} not found`
-            });
+            throw new ApiError(404, `Bill with ID ${id} not found`);
         }
 
         bill.estado = estado || bill.estado;
@@ -184,10 +161,6 @@ export const updateBillStatus = async (req, res) => {
         });
         
     } catch (error) {
-        console.error("Error updating bill status:", error);
-        res.status(500).json({
-            message: 'Error updating bill status',
-            error: error.message
-        });
+        next(error);
     }
 };
